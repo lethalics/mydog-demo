@@ -1,9 +1,5 @@
 package config
 
-/**
- * Created by alex on 4/15/2015.
- */
-
 import java.lang.reflect.Constructor
 import javax.inject.Inject
 
@@ -16,8 +12,6 @@ import play.api.libs.json.Json
 
 import scala.concurrent.Future
 import scala.util.control.NonFatal
-
-//import com.google.inject.{Guice, AbstractModule}
 import controllers.CustomRoutesService
 import play.api._
 import play.api.mvc._
@@ -52,25 +46,24 @@ object Global extends play.api.GlobalSettings {
     override def onStop(app: Application) {
       pool.close
     }
-
-
-
-   /**
-    * The runtime environment for this app.
-    */
-
+	
+	/**
+	*social security environment
+	*/
    class MyRuntimeEnvironment @Inject()(userProfile: UserProfile) extends RuntimeEnvironment.Default[BasicProfile] {
      override implicit val executionContext = play.api.libs.concurrent.Execution.defaultContext
      override lazy val routes = new CustomRoutesService()
      override lazy val userService: MyDogUserService = new MyDogUserService(userProfile)
      override lazy val eventListeners = List(new MyDogEventListener())
    }
-
-  val injector = Guice.createInjector(new AbstractModule {
+	/**
+	* Guice DI
+	*/	
+   val injector = Guice.createInjector(new AbstractModule {
     protected def configure(): Unit = {
       bind(new TypeLiteral[RuntimeEnvironment[BasicProfile]]{}).to(classOf[MyRuntimeEnvironment])
     }
-  })
+   })
 
    /**
     * An implementation that checks if the controller expects a RuntimeEnvironment and
@@ -83,14 +76,6 @@ object Global extends play.api.GlobalSettings {
     * @return
     */
    override def getControllerInstance[A](controllerClass: Class[A]): A = {
-     /*val instance = controllerClass.getConstructors.find { c =>
-       val params = c.getParameterTypes
-       params.length == 1 && params(0) == classOf[RuntimeEnvironment[LocalUser]]
-     }.map {
-       _.asInstanceOf[Constructor[A]].newInstance(MyRuntimeEnvironment)
-     }
-
-     instance.getOrElse(super.getControllerInstance(controllerClass))*/
      injector.getInstance(controllerClass)
    }
 
