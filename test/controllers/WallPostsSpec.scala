@@ -33,7 +33,7 @@ class WallPostsSpec extends PlaySpec with OneServerPerSuite with JsonMatchers {
 
 
 
-  "WallPosts should" must {
+  "WallPosts should" should {
 
     //list wallposts
     "return authentication required on GET /1/posts" in {
